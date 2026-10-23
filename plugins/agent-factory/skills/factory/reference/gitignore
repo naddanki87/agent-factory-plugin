@@ -1,0 +1,35 @@
+# Build output and deliverables (shipped through GitHub releases, not git)
+dist/
+data/
+*.mv.db
+*.trace.db
+build/
+.gradle/
+out/
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Android
+local.properties
+*.apk
+*.aab
+captures/
+
+# Secrets — never commit these
+.env
+*.pem
+*.jks
+*.keystore
+application-local*.yml
+application-local*.properties
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent Factory working files (QA report, kit copy)
+.factory/

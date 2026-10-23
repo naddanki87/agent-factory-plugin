@@ -1,0 +1,55 @@
+# GitHub Actions CI for Agent Factory projects. Copy to .github/workflows/ci.yml.
+# Remove the android job if the project has no android/ folder.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build, lint, test, coverage, executable JAR
+        run: ./gradlew check bootJar --no-daemon
+      - name: Upload JAR and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend
+          path: |
+            backend/build/libs/*.jar
+            backend/build/reports
+
+  android:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Lint, unit tests, APK
+        run: ./gradlew lint testDebugUnitTest assembleDebug --no-daemon
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: android/app/build/outputs/apk/debug/*.apk

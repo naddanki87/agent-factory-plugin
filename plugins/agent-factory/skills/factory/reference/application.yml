@@ -1,0 +1,36 @@
+# Default backend configuration for Agent Factory projects.
+# Copy to backend/src/main/resources/application.yml and adjust the app name.
+# Runs standalone: `java -jar app.jar` stores data in ./data/ next to where it is started.
+spring:
+  application:
+    name: app
+  datasource:
+    url: ${DB_URL:jdbc:h2:file:./data/app;MODE=PostgreSQL;AUTO_SERVER=TRUE}
+    username: ${DB_USER:sa}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate   # schema comes only from Flyway migrations
+  flyway:
+    enabled: true
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+---
+# Optional PostgreSQL profile: java -jar app.jar --spring.profiles.active=postgres
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/app}
+    username: ${DB_USER:app}
+    password: ${DB_PASSWORD}

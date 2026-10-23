@@ -1,0 +1,45 @@
+# Release workflow for Agent Factory projects. Copy to .github/workflows/release.yml.
+# On a v* tag: builds the executable JAR and the APK and attaches both to the GitHub release.
+# Remove the android steps if the project has no android/ folder.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build and test backend, then package the executable JAR
+        working-directory: backend
+        run: ./gradlew check bootJar --no-daemon
+
+      - name: Build the APK
+        working-directory: android
+        run: ./gradlew testDebugUnitTest assembleDebug --no-daemon
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p dist
+          cp backend/build/libs/*.jar dist/
+          rm -f dist/*-plain.jar
+          cp android/app/build/outputs/apk/debug/app-debug.apk "dist/${GITHUB_REPOSITORY#*/}-${GITHUB_REF_NAME#v}.apk"
+          ls -l dist
+
+      - name: Attach to the release (creates it if missing)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
+          gh release upload "$GITHUB_REF_NAME" dist/* --clobber

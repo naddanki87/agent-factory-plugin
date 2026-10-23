@@ -1,0 +1,7 @@
+{
+  "name": "agent-factory",
+  "version": "1.0.0",
+  "description": "Agent team that turns an app idea into a tested Java project (Spring Boot API + optional Android app) on GitHub, shipped as an executable JAR and an APK. Run /agent-factory:factory \"<brief>\".",
+  "author": { "name": "naddanki87" },
+  "keywords": ["agent-team", "java", "spring-boot", "android", "github", "release"]
+}

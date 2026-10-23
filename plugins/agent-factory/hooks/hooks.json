@@ -1,0 +1,45 @@
+{
+  "description": "Agent Factory quality gate (blocks unverified task completion and pushes in factory projects) and live-dashboard events.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "if": "Bash(git push*)", "command": "java \"${CLAUDE_PLUGIN_ROOT}/hooks/FactoryGate.java\"", "timeout": 900, "statusMessage": "Quality gate: verifying build before push" },
+          { "type": "command", "if": "Bash(git -C * push*)", "command": "java \"${CLAUDE_PLUGIN_ROOT}/hooks/FactoryGate.java\"", "timeout": 900, "statusMessage": "Quality gate: verifying build before push" },
+          { "type": "command", "if": "Bash(gh repo create*)", "command": "java \"${CLAUDE_PLUGIN_ROOT}/hooks/FactoryGate.java\"", "timeout": 900, "statusMessage": "Quality gate: verifying build before push" }
+        ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [{ "type": "http", "url": "http://localhost:7070/api/events", "timeout": 2 }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|Bash|SendMessage|TaskUpdate",
+        "hooks": [{ "type": "http", "url": "http://localhost:7070/api/events", "timeout": 2 }]
+      }
+    ],
+    "TaskCreated": [
+      { "hooks": [{ "type": "http", "url": "http://localhost:7070/api/events", "timeout": 2 }] }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          { "type": "command", "command": "java \"${CLAUDE_PLUGIN_ROOT}/hooks/FactoryGate.java\"", "timeout": 900, "statusMessage": "Quality gate: verifying task before completion" },
+          { "type": "http", "url": "http://localhost:7070/api/events", "timeout": 2 }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      { "hooks": [{ "type": "http", "url": "http://localhost:7070/api/events", "timeout": 2 }] }
+    ],
+    "SubagentStart": [
+      { "hooks": [{ "type": "http", "url": "http://localhost:7070/api/events", "timeout": 2 }] }
+    ],
+    "SubagentStop": [
+      { "hooks": [{ "type": "http", "url": "http://localhost:7070/api/events", "timeout": 2 }] }
+    ]
+  }
+}

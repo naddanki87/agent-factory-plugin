@@ -1,0 +1,13 @@
+{
+  "name": "agent-factory",
+  "owner": { "name": "naddanki87" },
+  "metadata": { "description": "Agent Factory plugin marketplace" },
+  "plugins": [
+    {
+      "name": "agent-factory",
+      "source": "./plugins/agent-factory",
+      "description": "Agent team that builds, tests and ships a Java project (Spring Boot + Android) to GitHub as a JAR and APK.",
+      "version": "1.0.0"
+    }
+  ]
+}
